@@ -4,24 +4,121 @@
 #
 version: 2
 jobs:
+  build:
+    macos: 
+      xcode: "10.1.0"
+    steps:
+      - checkout
 
-  release_carthage:
-    # Specify the Xcode version to use
+      - run:
+          name: create credentials
+          command: |
+            echo "empty" > AWSCoreTests/Resources/credentials.json   
+
+      - run:
+          name: build sdk
+          command: xcodebuild  build-for-testing -project AWSiOSSDKv2.xcodeproj -scheme AWSAllTests -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 8,OS=12.1'         
+ 
+  unittest:
     macos:
-      xcode: "9.2.0"
+      xcode: "10.1.0"
 
+    steps:
+      - checkout
+
+      - run:
+          name: create credentials
+          command: |
+            echo "empty" > AWSCoreTests/Resources/credentials.json 
+
+      - run:
+          name: build sdk
+          command: xcodebuild  build-for-testing -project AWSiOSSDKv2.xcodeproj -scheme AWSAllTests -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 8,OS=12.1'      
+  
+      - run :
+          name: run unit tests
+          command: bash CircleciScripts/run_unittests.sh
+
+      - run:
+          name : check unit test result 
+          command : bash CircleciScripts/check_unitest_result.sh
+
+      - store_artifacts:
+          path: test_result
+
+  integrationtest:
+    macos:
+      xcode: "10.1.0"
+
+    steps:
+      - checkout 
+      - run: git branch
+      - run: 
+          name: install json parser
+          command: pip3 install demjson
+      - run:
+          name: create credentials
+          command: |
+            echo ${AWS_CREDENTIALS}  | base64 --decode  > AWSCoreTests/Resources/credentials.json  
+      - run:
+          name: build sdk
+          command: xcodebuild  build-for-testing -project AWSiOSSDKv2.xcodeproj -scheme AWSAllTests -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 8,OS=12.1'      
+      - run :
+          name: run integration tests
+          command: |
+            mkdir integration_test_result
+            python3 CircleciScripts/run_integrationtests.py  CircleciScripts/integrationtests.json 
+      - run:
+          name : check unit test result 
+          command : bash CircleciScripts/check_integrationtest_result.sh
+
+
+      - store_test_results:
+          path: integration_test_result
+
+
+  release_carthage:    
+    macos:
+      xcode: "10.1.0"
     steps: 
       - checkout
-      - run:
-          name: upgrade carthage
-          command: brew outdated carthage || brew upgrade carthage
-      - run:
-          name: Build Cathage
-          command: carthage build --no-skip-current
 
       - run:
+          name: create credentials
+          command: |
+            echo ${AWS_CREDENTIALS}  | base64 --decode  > AWSCoreTests/Resources/credentials.json  
+
+
+      - run:
+          name: install aws cli
+          command: |
+            brew install awscli
+      - run:
+          name: install custom carthage
+          command: |
+            aws s3 cp s3://custom-carthage/customcarthage.zip customcarthage.zip
+            unzip -a customcarthage.zip
+            ls customcarthage
+            chmod 111 customcarthage/carthage
+          #  brew uninstall --force carthage
+           # brew install https://github.com/Homebrew/homebrew-core/raw/df3be3a1882f7d2ea98efac4c9a1f37792b7097b/Formula/carthage.rb
+
+          #brew outdated carthage || brew upgrade carthage
+      - run:
+          name: build 
+          command: |
+            instruments -s devices
+            xcodebuild -project AWSiOSSDKv2.xcodeproj -scheme AWSAllTests -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 8,OS=11.2' build     
+      - run:
+          name: Build Cathage
+          command: |
+            customcarthage/carthage build --no-skip-current | tee buildout.txt
+          no_output_timeout: 100m
+      - run:
           name: Create Cathage Archive
-          command: bash CreateCarthageArchive.sh   
+          command: |
+            bash CreateCarthageArchive.sh   
+          no_output_timeout: 30m
 
 
   release_cocoapods:
@@ -72,10 +169,32 @@ workflows:
   version: 2
   build_and_test:
     jobs: 
+      - build:
+          filters:
+            branches:
+              ignore: /test.*/
+
+      - unittest:
+          requires:
+            - build
+          filters:
+            branches:
+              ignore: /test.*/
+
+      - integrationtest:
+#          requires:
+ #           - build
+          filters:
+            branches:
+              only: testcircleci             
+
       - release_carthage:
           filters:
             branches:
-              only: testcircleci
+              only: testcirclecisss
+
+
+
       - release_cocoapods:
           filters:
             branches:

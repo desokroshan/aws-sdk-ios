@@ -54,7 +54,7 @@
     }
     return self;
 }
-
+    
 - (instancetype) initWithLocalRecord:(AWSCognitoConflict *) conflict {
     self = [super init];
     if (nil != self) {

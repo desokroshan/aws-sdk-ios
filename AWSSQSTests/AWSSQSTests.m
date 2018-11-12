@@ -42,7 +42,7 @@
 
 -(void)testClockSkewSQS {
     [AWSTestUtility setupSwizzling];
-
+    XCTAssertFalse(true);
     XCTAssertFalse([NSDate aws_getRuntimeClockSkew], @"current RunTimeClockSkew is not zero!");
     [AWSTestUtility setMockDate:[NSDate dateWithTimeIntervalSince1970:3600]];
 

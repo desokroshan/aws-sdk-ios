@@ -1,0 +1,11 @@
+{
+    'AWSSQSTests':{
+        'timeout': 60,
+        'retriabletests':[
+            'AWSSQSTests/testClockSkewSQS'
+
+        ]
+    },
+
+    
+}

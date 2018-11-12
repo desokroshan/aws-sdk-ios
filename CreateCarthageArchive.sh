@@ -1,4 +1,6 @@
-carthage archive | tee "carthageout.txt"
+time xcodebuild -project AWSiOSSDKv2.xcodeproj -scheme AWSAPIGateway -configuration Release CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY= CARTHAGE=YES archive  -showBuildSettings -skipUnavailableActions
+
+customcarthage/carthage archive | tee "carthageout.txt"
 frameworkfilename=$(cat carthageout.txt |  grep -o 'Created .*\.zip$'  | grep -o   '\S*\.zip$')
 
 if [ -z  "$frameworkfilename" ];then

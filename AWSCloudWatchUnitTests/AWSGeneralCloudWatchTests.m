@@ -42,6 +42,7 @@ static id mockNetworking = nil;
 
 - (void)testConstructors {
     NSString *key = @"testCloudWatchConstructors";
+    //XCTAssertEqual(1,2);
     XCTAssertNotNil([AWSCloudWatch defaultCloudWatch]);
     XCTAssertEqual([[AWSCloudWatch defaultCloudWatch] class], [AWSCloudWatch class]);
     XCTAssertNil([AWSCloudWatch CloudWatchForKey:key]);
