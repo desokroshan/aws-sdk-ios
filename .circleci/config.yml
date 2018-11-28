@@ -167,6 +167,10 @@ jobs:
 
 workflows:
   version: 2
+  myworkflow:
+    jobs:
+      - unittest
+
   build_and_test:
     jobs: 
       - build:
@@ -175,11 +179,9 @@ workflows:
               ignore: /test.*/
 
       - unittest:
-          requires:
-            - build
           filters:
-            branches:
-              ignore: /test.*/
+            branches:             
+              only: testcircleci   
 
       - integrationtest:
 #          requires:
