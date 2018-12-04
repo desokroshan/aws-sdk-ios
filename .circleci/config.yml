@@ -14,7 +14,7 @@ jobs:
       - run:
           name: create awsconfiguration.json
           command: |
-            echo ${awsconfiguration} | base64 -di >> awsconfiguration.json
+            echo ${awsconfiguration} | base64 --decode >> awsconfiguration.json
       - run:
           name: runInstrumentationTest
           command: |
