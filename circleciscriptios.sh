@@ -5,6 +5,6 @@ git checkout deviceFarm
 cd S3TransferUtility-Sample/Swift/
 cp $cfolder/awsconfiguration.json S3BackgroundTransferSampleSwift/awsconfiguration.json
 pod install --repo-update
-xcodebuild -workspace S3TransferUtilitySampleSwift.xcworkspace -scheme "S3TransferUtilitySampleSwiftUITests" -destination 'platform=iOS Simulator,name=iPhone 8 Plus,OS=11.3' test
+xcodebuild -workspace S3TransferUtilitySampleSwift.xcworkspace -scheme "S3TransferUtilitySampleSwiftUITests" -destination 'platform=iOS Simulator,name=iPhone 8 Plus,OS=11.2' test
 cd $cfolder
 
