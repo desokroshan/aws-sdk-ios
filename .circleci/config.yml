@@ -16,7 +16,7 @@ jobs:
           command: |
             git clone https://github.com/awslabs/aws-sdk-ios-samples.git
             cd aws-sdk-ios-samples
-            git checkout deviceFarm
+            git checkout uiTest
             cd S3TransferUtility-Sample/Swift/
             echo ${awsconfiguration} | base64 --decode >> S3BackgroundTransferSampleSwift/awsconfiguration.json
             pod install
