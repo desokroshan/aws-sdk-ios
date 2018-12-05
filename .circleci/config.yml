@@ -26,6 +26,7 @@ jobs:
       - run:
           name: Copy awsconfiguration.json file
           command: |
+            echo $currentFolder
             cp $currentFolder/awsconfiguration.json S3BackgroundTransferSampleSwift/awsconfiguration.json
       - run:
           name: Install Pods
