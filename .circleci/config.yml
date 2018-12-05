@@ -12,10 +12,6 @@ jobs:
     steps:
       - checkout
       - run:
-          name: create awsconfiguration.json
-          command: |
-            echo ${awsconfiguration} | base64 --decode >> awsconfiguration.json
-      - run:
           name: Clone the samples repository
           command: |
             git clone https://github.com/awslabs/aws-sdk-ios-samples.git
@@ -26,8 +22,7 @@ jobs:
       - run:
           name: Copy awsconfiguration.json file
           command: |
-            echo $currentFolder
-            cp $currentFolder/awsconfiguration.json S3BackgroundTransferSampleSwift/awsconfiguration.json
+            echo ${awsconfiguration} | base64 --decode >> S3BackgroundTransferSampleSwift/awsconfiguration.json
       - run:
           name: Install Pods
           command: |
