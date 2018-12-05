@@ -22,6 +22,7 @@ jobs:
       - run:
           name: Copy awsconfiguration.json file
           command: |
+            pwd
             echo ${awsconfiguration} | base64 --decode >> S3BackgroundTransferSampleSwift/awsconfiguration.json
       - run:
           name: Install Pods
