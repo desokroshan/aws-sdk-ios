@@ -12,31 +12,16 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Clone the samples repository
+          name: Run Sample UI Test
           command: |
             git clone https://github.com/awslabs/aws-sdk-ios-samples.git
-            currentFolder=$(pwd)
             cd aws-sdk-ios-samples
             git checkout uiTest
             cd S3TransferUtility-Sample/Swift/
-      - run:
-          name: Copy awsconfiguration.json file
-          command: |
-            pwd
             echo ${awsconfiguration} | base64 --decode >> S3BackgroundTransferSampleSwift/awsconfiguration.json
-      - run:
-          name: Install Pods
-          command: |
             pod install
-      - run:
-          name: runInstrumentationTest
-          command: |
             xcodebuild -workspace S3TransferUtilitySampleSwift.xcworkspace -scheme "S3TransferUtilitySampleSwiftUITests" -destination 'platform=iOS Simulator,name=iPhone 8 Plus,OS=11.2' test
-      - run:
-          name: Cleanup
-          command: |
-            cd $currentFolder
-            rm -rf aws-sdk-ios-samples
+
 workflows:
   version: 2
 
