@@ -14,12 +14,14 @@ jobs:
           name: Run Sample UI Test
           command: |
             git clone https://github.com/awslabs/aws-sdk-ios-samples.git
+            cfolder=$(pwd)
             cd aws-sdk-ios-samples
             cd S3TransferUtility-Sample/Swift/
             echo ${awsconfiguration} | base64 --decode > S3BackgroundTransferSampleSwift/awsconfiguration.json
             cat S3BackgroundTransferSampleSwift/awsconfiguration.json
             pod install
             xcodebuild -workspace S3TransferUtilitySampleSwift.xcworkspace -scheme "S3TransferUtilitySampleSwiftUITests" -destination 'platform=iOS Simulator,name=iPhone 8 Plus,OS=11.2' test
+            cd $cfolder
 
 workflows:
   version: 2
