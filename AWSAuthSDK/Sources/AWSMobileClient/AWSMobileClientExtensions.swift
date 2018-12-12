@@ -452,11 +452,14 @@ extension AWSMobileClient {
     ///   - challengeResponse: confirmation code or TOTP token which is available to the user.
     ///   - completionHandler: completionHandler which will be called when result is available.
     public func confirmSignIn(challengeResponse: String, completionHandler: @escaping ((SignInResult?, Error?) -> Void)) {
-        if (self.userpoolOpsHelper.mfaCodeCompletionSource == nil) {
-            completionHandler(nil, AWSMobileClientError.invalidState(message: "Please call `signIn` before calling this method."))
-        } else {
+        if (self.userpoolOpsHelper.mfaCodeCompletionSource != nil) {
             self.userpoolOpsHelper.currentSignInHandlerCallback = completionHandler
             self.userpoolOpsHelper.mfaCodeCompletionSource?.set(result: challengeResponse as NSString)
+        } else if (self.userpoolOpsHelper.newPasswordRequiredTaskCompletionSource != nil) {
+            self.userpoolOpsHelper.currentSignInHandlerCallback = completionHandler
+            self.userpoolOpsHelper.newPasswordRequiredTaskCompletionSource?.set(result: AWSCognitoIdentityNewPasswordRequiredDetails.init(proposedPassword: challengeResponse, userAttributes: [String:String]()))
+        } else {
+            completionHandler(nil, AWSMobileClientError.invalidState(message: "Please call `signIn` before calling this method."))
         }
     }
     
@@ -517,6 +520,29 @@ extension AWSMobileClient {
                         codeDeliveryDetailsList.append(self.getUserCodeDeliveryDetails(codeDeliveryDetail))
                     }
                 }
+            }
+            return nil
+        }
+    }
+    
+    
+    /// Fetches the attributes for logged in user.
+    ///
+    /// - Parameter completionHandler: completion handler which will be invoked when result is available.
+    public func getUserAttributes(completionHandler: @escaping (([String: String]?, Error?) -> Void)) {
+        self.userpoolOpsHelper.currentActiveUser!.getDetails().continueWith { (task) -> Any? in
+            if let error = task.error {
+               completionHandler(nil, self.getMobileError(for: error))
+            } else if let result = task.result {
+                let userAttributes = result.userAttributes
+                var attributesMap = [String: String]()
+                if let userAttributes = userAttributes {
+                    for attribute in userAttributes {
+                        guard attribute.name != nil, attribute.value != nil else {continue}
+                        attributesMap[attribute.name!] = attribute.value!
+                    }
+                }
+                completionHandler(attributesMap, nil)
             }
             return nil
         }
